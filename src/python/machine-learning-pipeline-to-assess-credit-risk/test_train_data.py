@@ -9,6 +9,7 @@ try:
         # print(f"top 5 rows = {loan_data_df.head(5)}")
     except Exception as e:
         print(f"Error while loading loan_data.csv into Pandas Data Frame - {e}")
+        raise
 
     seed = 10
     # split input data into train and test
