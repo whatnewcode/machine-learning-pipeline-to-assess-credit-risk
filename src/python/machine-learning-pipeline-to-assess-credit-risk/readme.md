@@ -1,4 +1,5 @@
 This code uses the scikit-learn library to split a dataset into two subsets: one for training a machine learning model and one for testing its performance.
+
 X_train, X_test, y_train, y_test = train_test_split(
     loan_data_df.drop("default", axis=1),
     loan_data_df["default"],
