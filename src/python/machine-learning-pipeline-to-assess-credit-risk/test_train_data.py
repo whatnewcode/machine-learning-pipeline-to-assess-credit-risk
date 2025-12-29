@@ -10,13 +10,18 @@ try:
     except Exception as e:
         print(f"Error while loading loan_data.csv into Pandas Data Frame - {e}")
 
+    seed = 10
     # split input data into train and test
-    test_data, train_data = train_test_split(loan_data_df, test_size=0.8, train_size=0.2, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(loan_data_df.drop("default", axis=1),
+                                                        loan_data_df["default"],
+                                                        test_size=0.2,
+                                                        train_size=0.8,
+                                                        random_state=seed)
 
-    print(f"train_data = {len(train_data)}")
-    print(f"test_data = {len(test_data)}")
-    print(f"top 1 record from train_data = {train_data.head(1)}")
-    print(f"top 1 record from test_data = {test_data.head(1)}")
+    print(f"train test shapes = {X_train.shape, X_test.shape}")
+    print(f"default rate train, test = {y_train.mean(), y_test.mean()}")
+    # print(f"top 1 record from train_data = {X_train.head(1)}")
+    # print(f"top 1 record from test_data = {X_test.head(1)}")
 
 except Exception as e:
     print(f"Error: {e}")
