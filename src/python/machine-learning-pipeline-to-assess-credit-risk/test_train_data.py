@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from feature_engine.imputation import ArbitraryNumberImputer
 
 
 def csv_to_df(file_path: str) -> pd.DataFrame:
@@ -40,12 +41,20 @@ def impute_missing_numeric_discrete_data(x_train, x_test):
 
         print(f"numeric columns with missing values {numeric_cols_na}")
 
-        impute_dict = {col: -1 for col in numeric_cols_na}
+        imputer = ArbitraryNumberImputer(
+            arbitrary_number=-1,  # the imputation value
+            variables=numeric_cols_na,  # the variables to impute
+        )
 
-        print(f"impute dictionary={impute_dict}")
+        # impute_dict = {col: -1 for col in numeric_cols_na}
 
-        x_train.fillna(value=impute_dict, inplace=True)
-        x_test.fillna(value=impute_dict, inplace=True)
+        # print(f"impute dictionary={impute_dict}")
+
+        # x_train.fillna(value=impute_dict, inplace=True)
+        # x_test.fillna(value=impute_dict, inplace=True)
+
+        x_train = imputer.fit_transform(X_train)
+        x_test = imputer.transform(X_test)
 
         # test for missing values for discrete columns
         print(
