@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from feature_engine.imputation import ArbitraryNumberImputer
 
@@ -77,7 +78,8 @@ def model_input_features(data):
                             data["income_other"])
     # print(f"total_income={data['total_income']}")
 
-    data["debt_income_ratio"] = data["total_debt"].div(data["total_income"], fill_value=1.0)
+    data["debt_income_ratio"] = np.where(data["total_income"] != 0, data["total_debt"] / data["total_income"], 1)
+    # data["debt_income_ratio"] = data["total_debt"].div(data["total_income"].mask(data['total_income'] == 0.0)).fillna(1)
 
     return data
 
