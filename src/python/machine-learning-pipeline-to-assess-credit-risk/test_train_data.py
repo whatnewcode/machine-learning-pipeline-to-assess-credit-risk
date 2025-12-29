@@ -46,21 +46,14 @@ def impute_missing_numeric_discrete_data(x_train, x_test):
             variables=numeric_cols_na,  # the variables to impute
         )
 
-        # impute_dict = {col: -1 for col in numeric_cols_na}
-
-        # print(f"impute dictionary={impute_dict}")
-
-        # x_train.fillna(value=impute_dict, inplace=True)
-        # x_test.fillna(value=impute_dict, inplace=True)
-
-        x_train = imputer.fit_transform(X_train)
-        x_test = imputer.transform(X_test)
+        x_train = imputer.fit_transform(x_train)
+        x_test = imputer.transform(x_test)
 
         # test for missing values for discrete columns
-        print(
-            f"Training data after imputing missing values for numeric columns: \n{x_train[numeric_cols_na].isnull().sum()}")
-        print(
-            f"Test data after imputing missing values for numeric columns: \n{x_test[numeric_cols_na].isnull().sum()}")
+        # print(
+            # f"Training data after imputing missing values for numeric columns: \n{x_train[numeric_cols_na].isnull().sum()}")
+        # print(
+            # f"Test data after imputing missing values for numeric columns: \n{x_test[numeric_cols_na].isnull().sum()}")
 
         return x_train, x_test
 
@@ -69,8 +62,31 @@ def impute_missing_numeric_discrete_data(x_train, x_test):
         raise
 
 
+def model_input_features(data):
+    """
+    data: pandas dataframe
+    derives columns/features for model
+    :return:
+    """
+    data["total_income"] = (data["income_from_employer"] +
+                            data["income_from_pension"] +
+                            data["income_from_family_allowance"] +
+                            data["income_from_social_welfare"] +
+                            data["income_from_leave_pay"] +
+                            data["income_from_child_support"] +
+                            data["income_other"])
+    # print(f"total_income={data['total_income']}")
+
+    data["debt_income_ratio"] = data["total_debt"].div(data["total_income"], fill_value=1.0)
+
+    return data
+
+
 def split_test_train_data():
-    """"""
+    """
+    splits model data into train and test
+    :return:
+    """
     try:
         # load loan_data.csv into panda DF
         loan_data_df = csv_to_df("loan_data.csv")
@@ -85,12 +101,16 @@ def split_test_train_data():
 
         print(f"train test shapes = {X_train.shape, X_test.shape}")
         print(f"default rate train, test = {y_train.mean(), y_test.mean()}")
-        # print(f"top 1 record from train_data = {X_train.head(1)}")
-        # print(f"top 1 record from test_data = {X_test.head(1)}")
 
         X_train, X_test = impute_missing_numeric_discrete_data(X_train, X_test)
 
-        return X_train, X_test, y_train, y_test
+        X_train_features_added = model_input_features(X_train)
+        X_test_features_added = model_input_features(X_test)
+
+        print(f"top 1 record from train_data = {X_train_features_added.head(1)}")
+        print(f"top 1 record from test_data = {X_test_features_added.head(1)}")
+
+        return X_train_features_added, X_test_features_added, y_train, y_test
 
     except Exception as e:
         print(f"Error: {e}")
