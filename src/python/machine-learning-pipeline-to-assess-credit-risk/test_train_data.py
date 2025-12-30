@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from feature_engine.imputation import ArbitraryNumberImputer
+from dateutil.relativedelta import relativedelta
 
 
 def csv_to_df(file_path: str) -> pd.DataFrame:
@@ -79,10 +80,18 @@ def model_input_features(data):
                             data["income_other"])
     # print(f"total_income={data['total_income']}")
 
+    # debt to income ratio
     data["debt_income_ratio"] = np.where(data["total_income"] != 0, data["total_debt"] / data["total_income"], 0)
     # data["debt_income_ratio"] = data["total_debt"].div(data["total_income"].mask(data['total_income'] == 0.0)).fillna(0)
 
+    # discretionary income, what's left after paying existing loan
     data["discretionary_income"] = data["total_income"] - data["total_debt"]
+
+    # Age of customer at the time of loan application
+    data["age"] = data.apply(lambda row: relativedelta(pd.to_datetime(row["application_date"]), pd.to_datetime(row["date_of_birth"])).years, axis=1)
+    # (pd.to_datetime(data["application_date"]).dt.normalize() - pd.to_datetime(data["date_of_birth"]))
+
+    # print(f"dob = {pd.to_datetime(data['date_of_birth']).dt.normalize()}")
 
     return data
 
