@@ -89,11 +89,13 @@ def model_input_features(data):
 
     # Age of customer at the time of loan application
     data["age"] = data.apply(lambda row: relativedelta(pd.to_datetime(row["application_date"]), pd.to_datetime(row["date_of_birth"])).years, axis=1)
-    # (pd.to_datetime(data["application_date"]).dt.normalize() - pd.to_datetime(data["date_of_birth"]))
 
-    # print(f"dob = {pd.to_datetime(data['date_of_birth']).dt.normalize()}")
+    # test if any row with age is missing
+    # print(f"age is NaN or blank = {data['age'].isnull().sum()}")
 
-    return data
+    data_age_filtered = data.query('age >= 18')
+
+    return data_age_filtered
 
 
 def split_test_train_data():
