@@ -108,6 +108,24 @@ def model_input_features(data):
 
     return data_age_filtered
 
+def drop_high_cardinal_categorical_fields(dataset):
+    """
+    drop columns which have high unique values from observation, future values will not be in current data
+    for these columns
+    """
+    # find string/object data type categorical columns, remove date fields
+    str_catg_cols = [col for col in dataset.select_dtypes(include="O").columns if col not in ["application_date", "date_of_birth"] ]
+    print(f"string/object data type categorical columns={str_catg_cols}")
+
+    # find columns that has most unique values
+    high_cardinal_cols = [col for col in str_catg_cols if dataset[col].nunique() > 20]
+    print(f"high_cardinal_cols={high_cardinal_cols}")
+
+    # drop these high cardinal columns from datasets
+    dataset.drop(high_cardinal_cols, axis=1, inplace=True)
+
+    return dataset
+
 
 def split_test_train_data():
     """
@@ -134,10 +152,13 @@ def split_test_train_data():
         X_train_features_added = model_input_features(X_train)
         X_test_features_added = model_input_features(X_test)
 
-        print(f"top 1 record from train_data = {X_train_features_added.head(1)}")
-        print(f"top 1 record from test_data = {X_test_features_added.head(1)}")
+        X_train_drop_high_cardinals = drop_high_cardinal_categorical_fields(X_train_features_added)
+        X_test_drop_high_cardinals = drop_high_cardinal_categorical_fields(X_test_features_added)
 
-        return X_train_features_added, X_test_features_added, y_train, y_test
+        print(f"top 1 record from train_data = {X_train_drop_high_cardinals.head(1)}")
+        print(f"top 1 record from test_data = {X_test_drop_high_cardinals.head(1)}")
+
+        return X_train_drop_high_cardinals, X_test_drop_high_cardinals, y_train, y_test
 
     except Exception as e:
         print(f"Error: {e}")
