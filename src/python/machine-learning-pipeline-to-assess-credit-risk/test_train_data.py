@@ -124,6 +124,18 @@ def drop_high_cardinal_categorical_fields(dataset):
     # drop these high cardinal columns from datasets
     dataset.drop(high_cardinal_cols, axis=1, inplace=True)
 
+    # impute missing data in these string categorical columns
+        # remove high cardinal columns
+    str_catg_cols = [col for col in str_catg_cols if col not in high_cardinal_cols]
+
+    str_catg_cols_na = [col for col in dataset[str_catg_cols].isnull().sum() > 0]
+
+    imputation_cat_dict = {col: "missing" for col in str_catg_cols_na}
+
+    print(f"impute value for categorical columns with missing values={imputation_cat_dict}")
+
+    dataset.fillna(value=imputation_cat_dict, inplace=True)
+
     return dataset
 
 
