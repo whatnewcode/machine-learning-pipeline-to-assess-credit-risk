@@ -93,7 +93,18 @@ def model_input_features(data):
     # test if any row with age is missing
     # print(f"age is NaN or blank = {data['age'].isnull().sum()}")
 
-    data_age_filtered = data.query('age >= 18')
+    data_age_filtered = data.query('age >= 18').copy()
+
+    # extract loan application date features
+    # day of the week
+    data_age_filtered["application_date"] = pd.to_datetime(data_age_filtered["application_date"])
+    data_age_filtered["application_day_of_week"] = data_age_filtered["application_date"].dt.day_of_week
+    data_age_filtered["application_day_of_month"] = data_age_filtered["application_date"].dt.day
+    data_age_filtered["application_month"] = data_age_filtered["application_date"].dt.month
+    data_age_filtered["application_hour_of_day"] = data_age_filtered["application_date"].dt.hour
+
+    # week of the month
+    # data_age_filtered["application_week_of_month"] = data_age_filtered["application_date"].
 
     return data_age_filtered
 
